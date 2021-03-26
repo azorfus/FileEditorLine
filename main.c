@@ -77,17 +77,24 @@ int main(int argc, char** argv)
 			while(inputRun)
 			{
 				fputs(": ", stdout);
-				fwrite(FileBuffer, sizeof(char), fileSize, stdout);
-				fgets(inputSec, 560, stdin);
-				if(strncmp(inputSec, ":END:", 5)==0)
-				{
-					inputRun=false;
+				char *ret = fgets(inputSec, 559, stdin);
+// check ret and do something if null
+				inputSec[559] =  '\0'; // In case fgets reads 559 bytes without a nul
+                if(strncmp(inputSec, ":END:", 5)==0)
+                {
+                    inputRun=false;
+                } else {
+	                ENT = strlen(inputSec);
+	                FileBuffer = realloc(FileBuffer, fileSize+ENT);
+	                memcpy(FileBuffer + fileSize, inputSec, ENT);
+					fileSize += ENT;
 				}
-				ENT = sizeof(inputSec);
-				FileBuffer = realloc(FileBuffer, fileSize+ENT);
-				const char *test = inputSec;
-				strcat(FileBuffer, test);
 			}
+			inputRun=true;
+		}
+		else if(strcmp(Tok, "w")==0)
+		{
+			fwrite(FileBuffer, sizeof(char), fileSize, GivenFile);
 		}
 	}
 
