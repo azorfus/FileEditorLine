@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	fread(FileBuffer, 1, fileSize, GivenFile);
 
 
-	char *inputSec;
+	char inputSec[560];
 	bool inputRun = true;
 /*
 	for(int i=0;i<100;i++)
@@ -77,8 +77,8 @@ int main(int argc, char** argv)
 			while(inputRun)
 			{
 				fputs(": ", stdout);
-				fgets(inputSec, 564, stdin);
-				if(strcmp(inputSec, ":END:")==0)
+				fgets(inputSec, 560, stdin);
+				if(strncmp(inputSec, ":END:", 5)==0)
 				{
 					inputRun=false;
 				}
