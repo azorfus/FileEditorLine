@@ -7,5 +7,7 @@ Usage:
 ./azr filename
 
 l: - lists the file's contents
+
 q: - quits
+
 i: insert mode (append)
