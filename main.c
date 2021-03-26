@@ -6,16 +6,6 @@
 
 #define MAX_BUFFER 1260
 
-void reallocBUFF(FILE *GivenFile, unsigned char **FileBuffer, size_t ENT)
-{
-	//free(*FileBuffer);
-	fseek(GivenFile, 0, SEEK_END);
-	size_t fileSize = ftell(GivenFile);
-	rewind(GivenFile);
-	*FileBuffer = realloc(*FileBuffer, fileSize+ENT);
-	fread(*FileBuffer, 1, fileSize, GivenFile);
-}
-
 int main(int argc, char** argv)
 {
 	FILE *GivenFile;
@@ -27,6 +17,7 @@ int main(int argc, char** argv)
 	char *Tok;
 	int Lines[100][2];
 	unsigned char *FileBuffer;
+	size_t ENT = 0;
 
 	FileBuffer = malloc(0);
 
@@ -39,11 +30,15 @@ int main(int argc, char** argv)
 		GivenFile = fopen("Untitled.txt", "w+");	
 	}	
 
-	reallocBUFF(GivenFile, &FileBuffer, 0);
+	fseek(GivenFile, 0, SEEK_END);
+	size_t fileSize = ftell(GivenFile);
+	rewind(GivenFile);
+	FileBuffer = realloc(FileBuffer, fileSize+ENT);
+	fread(FileBuffer, 1, fileSize, GivenFile);
+
 
 	char *inputSec;
 	bool inputRun = true;
-	size_t fileSize = ftell(GivenFile);
 
 	for(int i=0;i<100;i++)
 	{
@@ -85,7 +80,8 @@ int main(int argc, char** argv)
 				{
 					inputRun=false;
 				}
-				reallocBUFF(GivenFile, &FileBuffer, sizeof(inputSec));
+				ENT = sizeof(inputSec);
+				FileBuffer = realloc(FileBuffer, fileSize+ENT);
 				strcat(FileBuffer, inputSec);
 			}
 		}
