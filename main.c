@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
 	char *inputSec;
 	bool inputRun = true;
-
+/*
 	for(int i=0;i<100;i++)
 	{
 		if(FileBuffer[i]=='\n')
@@ -49,11 +49,13 @@ int main(int argc, char** argv)
 			Lines[Count][1] = i;
 		}
 	}
+
 	Count = 0;
 	for(int i=0;i<100;i++)
 	{
 		printf("%d, %d\n", Lines[i][0], Lines[i][1]);
 	}
+*/
 
 	while(Editing)
 	{
