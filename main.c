@@ -16,10 +16,9 @@ int main(int argc, char** argv)
 	char UserInput[128];
 	char *Tok;
 	int Lines[100][2];
-	unsigned char *FileBuffer;
+	char *FileBuffer;
 	size_t ENT = 0;
 
-	FileBuffer = malloc(0);
 
 	GivenFile = fopen(FileARG, "rb+");	
 	
@@ -32,6 +31,7 @@ int main(int argc, char** argv)
 
 	fseek(GivenFile, 0, SEEK_END);
 	size_t fileSize = ftell(GivenFile);
+	FileBuffer = malloc(fileSize);
 	rewind(GivenFile);
 	FileBuffer = realloc(FileBuffer, fileSize+ENT);
 	fread(FileBuffer, 1, fileSize, GivenFile);
@@ -77,6 +77,7 @@ int main(int argc, char** argv)
 			while(inputRun)
 			{
 				fputs(": ", stdout);
+				fwrite(FileBuffer, sizeof(char), fileSize, stdout);
 				fgets(inputSec, 560, stdin);
 				if(strncmp(inputSec, ":END:", 5)==0)
 				{
@@ -84,7 +85,8 @@ int main(int argc, char** argv)
 				}
 				ENT = sizeof(inputSec);
 				FileBuffer = realloc(FileBuffer, fileSize+ENT);
-				strcat(FileBuffer, inputSec);
+				const char *test = inputSec;
+				strcat(FileBuffer, test);
 			}
 		}
 	}
