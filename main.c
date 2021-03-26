@@ -6,13 +6,13 @@
 
 #define MAX_BUFFER 1260
 
-void reallocBUFF(FILE *GivenFile, char **FileBuffer, size_t ENT)
+void reallocBUFF(FILE *GivenFile, unsigned char **FileBuffer, size_t ENT)
 {
-	free(*FileBuffer);
+	//free(*FileBuffer);
 	fseek(GivenFile, 0, SEEK_END);
 	size_t fileSize = ftell(GivenFile);
 	rewind(GivenFile);
-	*FileBuffer = malloc(fileSize+ENT);
+	*FileBuffer = realloc(*FileBuffer, fileSize+ENT);
 	fread(*FileBuffer, 1, fileSize, GivenFile);
 }
 
@@ -26,7 +26,9 @@ int main(int argc, char** argv)
 	char UserInput[128];
 	char *Tok;
 	int Lines[100][2];
-	char *FileBuffer;
+	unsigned char *FileBuffer;
+
+	FileBuffer = malloc(0);
 
 	GivenFile = fopen(FileARG, "rb+");	
 	
@@ -69,6 +71,7 @@ int main(int argc, char** argv)
 		}			
 		else if(strcmp(Tok, "q")==0)
 		{
+			free(FileBuffer);
 			fclose(GivenFile);
 			exit(0);
 		}
