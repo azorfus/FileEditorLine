@@ -4,3 +4,4 @@ if %option% == 1 (gcc main.c -o read)
 if %option% == 2 (gcc -Wall -Wextra main.c -o read)
 if %option% GTR 2 (echo Error)
 if %option% LSS 1 (echo Error)
+@echo on
