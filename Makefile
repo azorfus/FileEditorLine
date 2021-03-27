@@ -1,2 +1,2 @@
 all:
-	gcc -Wall -Wextra main.c -o read
+	gcc main.c -o azr
