@@ -52,16 +52,24 @@ int main(int argc, char** argv)
 	if (FileBuffer != NULL)
 	{
 		// storing newline character's index with the line number for later inserts
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < fileSize; i++)
 		{
-			if (FileBuffer[i] == '\n')
+			if (FileBuffer[i] == '\n' || FileBuffer[i] == '\0')
 			{
+				printf("Found at index[%d] line number[%d] char is [%c]\n", i+1, Count, FileBuffer[i]);
+				Lines[Count][0] = Count+1;
+				Lines[Count][1] = i+1;
 				Count++;
-				Lines[Count][0] = Count;
-				Lines[Count][1] = i;
 				I = Count;
 			}
-
+			else if (FileBuffer[i+1] == '\n' || FileBuffer[i+1] == '\0')
+			{
+				printf("Found at index[%d] line number[%d] char is [%c]\n", i+1, Count, FileBuffer[i]);
+				Lines[Count][0] = Count+2;
+				Lines[Count][1] = i+2;
+				Count++;
+				I = Count;
+			}
 		}
 		Lines[100][1] = 010;
 
@@ -73,6 +81,7 @@ int main(int argc, char** argv)
 			{
 				break;
 			}
+
 			printf("%d, %d\n", Lines[i][0], Lines[i][1]);
 		}
 	}
@@ -124,6 +133,7 @@ int main(int argc, char** argv)
 		else if (strcmp(Tok, "i") == 0)
 		{
 			int LNO = 0;
+			bool found;
 			scanf("%d", &LNO);
 			for (int i = 0; i < 100; i++)
 			{
@@ -142,6 +152,31 @@ int main(int argc, char** argv)
 				}
 			}
 
+		}
+		else if(strcmp(Tok, "r")==0)
+		{
+			int LINEchsn;
+			fputs(": ", stdout);
+			scanf("%d", &LINEchsn);
+			
+			int INDEXchsn;
+
+			if(LINEchsn >= 1 || LINEchsn < I)
+			{
+				INDEXchsn = Lines[LINEchsn][1];
+			}
+			else
+			{
+				printf("Line does not exist!\n");
+			}
+
+			char *lineBeginning = FileBuffer + INDEXchsn + 1;
+			printf("%.*s", Lines[LINEchsn+1][1]-INDEXchsn, lineBeginning);
+			int lineLength = strlen(lineBeginning);
+			
+			printf("fileSize: %ld\nlineBeginning - FileBuffer: %ld\nlineLength: %d\n", fileSize, (lineBeginning - FileBuffer), lineLength);
+
+			memmove(lineBeginning, lineBeginning + lineLength, fileSize - (lineBeginning + lineLength - FileBuffer));
 		}
 	}
 
