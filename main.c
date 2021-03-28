@@ -12,18 +12,6 @@
 
 #define MAX_BUFFER 1260
 
-void ReadINTOBUFF(FILE *GivenFile, unsigned char **FileBuffer, size_t ENT)
-{
-	// reading the contents of the file onto FileBuffer
-	fseek(GivenFile, 0, SEEK_END);
-	size_t fileSize = ftell(GivenFile);
-	FileBuffer = malloc(fileSize);
-	rewind(GivenFile);
-	*FileBuffer = realloc(*FileBuffer, fileSize + ENT);
-	fread(*FileBuffer, 1, fileSize, GivenFile);
-    
-}
-
 int main(int argc, char** argv)
 {
 	FILE* GivenFile;
@@ -34,26 +22,32 @@ int main(int argc, char** argv)
 	char UserInput[128];
 	char* Tok;
 	int Lines[100][2];
-	unsigned char *FileBuffer;
+	char* FileBuffer;
 	size_t ENT = 0;
-    
-    
+
+
 	GivenFile = fopen(FileARG, "rb+");
-    
-    
+
+
 	// if the given file does not exist. it creates a new file
 	if (GivenFile == NULL)
 	{
 		GivenFile = fopen("Untitled.txt", "w+");
 	}
-    
-	ReadINTOBUFF(GivenFile, &FileBuffer, ENT);
-    
+
+	// reading the contents of the file onto FileBuffer
+	fseek(GivenFile, 0, SEEK_END);
+	size_t fileSize = ftell(GivenFile);
+	FileBuffer = malloc(fileSize);
+	rewind(GivenFile);
+	FileBuffer = realloc(FileBuffer, fileSize + ENT);
+	fread(FileBuffer, 1, fileSize, GivenFile);
+
+
 	char inputSec[560];
 	bool inputRun = true;
 	int I = 0;
-    	size_t fileSize = ftell(GivenFile);
-    
+
 	// Checking if the FileBuffer is NULL to avoid memory problems
 	if (FileBuffer != NULL)
 	{
@@ -67,11 +61,11 @@ int main(int argc, char** argv)
 				Lines[Count][1] = i;
 				I = Count;
 			}
-            
+
 		}
 		Lines[100][1] = 010;
-        
-        
+
+
 		Count = 0;
 		for (int i = 0; i < 100; i++)
 		{
@@ -82,9 +76,9 @@ int main(int argc, char** argv)
 			printf("%d, %d\n", Lines[i][0], Lines[i][1]);
 		}
 	}
-    
-	
-    
+
+
+
 	while (Editing)
 	{
 		fputs("$ ", stdout);
@@ -122,7 +116,7 @@ int main(int argc, char** argv)
 			}
 			inputRun = true;
 		}
-        
+
 		else if (strcmp(Tok, "w") == 0)
 		{
 			fwrite(FileBuffer, sizeof(char), fileSize, GivenFile);
@@ -130,7 +124,6 @@ int main(int argc, char** argv)
 		else if (strcmp(Tok, "i") == 0)
 		{
 			int LNO = 0;
-			bool found;
 			scanf("%d", &LNO);
 			for (int i = 0; i < 100; i++)
 			{
@@ -145,14 +138,14 @@ int main(int argc, char** argv)
 				}
 				if (found == true)
 				{
-                   			 
+
 				}
 			}
-            
+
 		}
 	}
-    
+
 	fclose(GivenFile);
-    
+
 	return 0;
 }
