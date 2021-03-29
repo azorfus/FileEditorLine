@@ -27,16 +27,16 @@ int main(int argc, char** argv)
 
 	if (FileARG != NULL)
 	{
-		GivenFile = fopen(FileARG, "rb+");
+		GivenFile = fopen(FileARG, "w+");
 		if (GivenFile == NULL)
 		{
-			GivenFile = fopen("Untitled.txt", "w+");
+			GivenFile = fopen("untitled", "w+");
 		}
 	}
 	// if the given file does not exist. it creates a new file
 	else
 	{
-		GivenFile = fopen("Untitled.txt", "w+");
+		GivenFile = fopen("untitiled", "w+");
 	}
 
 	// reading the contents of the file onto FileBuffer
@@ -100,6 +100,8 @@ int main(int argc, char** argv)
 		}
 		else if (strcmp(Tok, "a") == 0)
 		{
+			char* temp = "";
+			size_t tempsize = strlen(temp);
 			while (inputRun)
 			{
 				fputs(": ", stdout);
@@ -108,14 +110,21 @@ int main(int argc, char** argv)
 				inputSec[559] = '\0'; // In case fgets reads 559 bytes without a nul
 				if (strncmp(inputSec, ":END:", 5) == 0)
 				{
+					memcpy(FileBuffer + fileSize, temp, ENT);
+					fileSize += tempsize;
+					inputRun = false;
+				}
+				else if (strncmp(inputSec, ":CNL:", 5) == 0)
+				{
+					temp = "";
 					inputRun = false;
 				}
 				else {
 					ENT = strlen(inputSec);
 					FileBuffer = realloc(FileBuffer, fileSize + ENT);
 					// copying the user input into the FileBuffer
-					memcpy(FileBuffer + fileSize, inputSec, ENT);
-					fileSize += ENT;
+					memcpy(temp + tempsize, inputSec, ENT);
+					tempsize += ENT;
 				}
 			}
 			inputRun = true;
@@ -124,6 +133,7 @@ int main(int argc, char** argv)
 		else if (strcmp(Tok, "w") == 0)
 		{
 			fwrite(FileBuffer, sizeof(char), fileSize, GivenFile);
+			printf("[%ld] bytes written to file.\n", strlen(FileBuffer));
 		}
 		else if (strcmp(Tok, "i") == 0)
 		{
@@ -206,32 +216,31 @@ int main(int argc, char** argv)
 		}
 		else if (strcmp(Tok, "o") == 0)
 		{
-			char *FILENAME = "";
+			char FILENAME[26];
 			fputs(": ", stdout);
-			fgets(FILENAME, 36, stdin);
-
-			if (FILENAME != NULL)
+			fgets(FILENAME, 26, stdin);
+			for (int i = 0; i < 26; i++)
 			{
-				GivenFile = fopen(FILENAME, "rb+");
-				if (GivenFile == NULL)
+				if (FILENAME[i] == '\n')
 				{
-					fputs("File does not exist!\n", stdout);
-				}
-				else
-				{
-					GivenFile = fopen(FILENAME, "rb+");
-					fseek(GivenFile, 0, SEEK_END);
-					size_t fileSize = ftell(GivenFile);
-					FileBuffer = malloc(fileSize);
-					rewind(GivenFile);
-					FileBuffer = realloc(FileBuffer, fileSize + ENT);
-					fread(FileBuffer, 1, fileSize, GivenFile);
+					FILENAME[i] = '\0';
 				}
 			}
-			// if the given file does not exist. it creates a new file
+			GivenFile = fopen(FILENAME, "r+");
+			if (GivenFile == NULL)
+			{
+				fputs("Enter a valid file\n", stdout);
+			}
 			else
 			{
-				fputs("File does not exist!\n", stdout);
+				fputs("File Loaded.\n", stdout);
+				fseek(GivenFile, 0, SEEK_END);
+				fileSize = ftell(GivenFile);
+				FileBuffer = malloc(fileSize);
+				rewind(GivenFile);
+				FileBuffer = realloc(FileBuffer, fileSize + ENT);
+				fread(FileBuffer, 1, fileSize, GivenFile);
+
 			}
 		}
 	}
