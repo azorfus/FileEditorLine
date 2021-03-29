@@ -12,19 +12,29 @@
 
 #define MAX_BUFFER 1260
 
+FILE* GivenFile;
+char* FileARG = argv[1];
+int LineNumber = 1;
+bool Editing = true;
+char UserInput[128];
+char* Tok;
+int Lines[100][2];
+char* FileBuffer;
+// size of user input string
+size_t ENT = 0;
+
+void Read_BUFF()
+{
+	fseek(GivenFile, 0, SEEK_END);
+	size_t fileSize = ftell(GivenFile);
+	FileBuffer = malloc(fileSize);
+	rewind(GivenFile);
+	FileBuffer = realloc(FileBuffer, fileSize + ENT);
+	fread(FileBuffer, 1, fileSize, GivenFile);
+}
+
 int main(int argc, char** argv)
 {
-	FILE* GivenFile;
-	char* FileARG = argv[1];
-	int LineNumber = 1;
-	bool Editing = true;
-	char UserInput[128];
-	char* Tok;
-	int Lines[100][2];
-	char* FileBuffer;
-	size_t ENT = 0;
-
-
 	if (FileARG != NULL)
 	{
 		GivenFile = fopen(FileARG, "w+");
@@ -40,19 +50,14 @@ int main(int argc, char** argv)
 	}
 
 	// reading the contents of the file onto FileBuffer
-	fseek(GivenFile, 0, SEEK_END);
-	size_t fileSize = ftell(GivenFile);
-	FileBuffer = malloc(fileSize);
-	rewind(GivenFile);
-	FileBuffer = realloc(FileBuffer, fileSize + ENT);
-	fread(FileBuffer, 1, fileSize, GivenFile);
 
+	Read_BUFF();
 
 	char inputSec[560];
 	bool inputRun = true;
 	int I = 0;
 
-	// Checking if the FileBuffer is NULL to avoid memory problems
+	// Checking if the FileBuffer is NULL to avoid memory corruption
 	if (FileBuffer != NULL)
 	{
 		// storing newline character's index with the line number for later inserts
@@ -234,12 +239,7 @@ int main(int argc, char** argv)
 			else
 			{
 				fputs("File Loaded.\n", stdout);
-				fseek(GivenFile, 0, SEEK_END);
-				fileSize = ftell(GivenFile);
-				FileBuffer = malloc(fileSize);
-				rewind(GivenFile);
-				FileBuffer = realloc(FileBuffer, fileSize + ENT);
-				fread(FileBuffer, 1, fileSize, GivenFile);
+				Read_BUFF();
 
 			}
 		}
