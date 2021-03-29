@@ -5,7 +5,7 @@
  *
  */
 #include <stdio.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -25,11 +25,16 @@ int main(int argc, char** argv)
 	size_t ENT = 0;
 
 
-	GivenFile = fopen(FileARG, "rb+");
-
-
+	if (FileARG != NULL)
+	{
+		GivenFile = fopen(FileARG, "rb+");
+		if (GivenFile == NULL)
+		{
+			GivenFile = fopen("Untitled.txt", "w+");
+		}
+	}
 	// if the given file does not exist. it creates a new file
-	if (GivenFile == NULL)
+	else
 	{
 		GivenFile = fopen("Untitled.txt", "w+");
 	}
@@ -57,19 +62,19 @@ int main(int argc, char** argv)
 		Lines[0][1] = 0;
 		for (int i = 0; i < fileSize; i++)
 		{
-		    	if (FileBuffer[i] != '\n' && FileBuffer[i] != '\0') continue; // ignore this iteration
+			if (FileBuffer[i] != '\n' && FileBuffer[i] != '\0') continue; // ignore this iteration
 
-			Lines[Count][0] = i+1;
-			Lines[Count-1][1] = i - Lines[Count-1][0];
-			if(Lines[Count-1][1] == -1)
+			Lines[Count][0] = i + 1;
+			Lines[Count - 1][1] = i - Lines[Count - 1][0];
+			if (Lines[Count - 1][1] == -1)
 			{
-				Lines[Count-1][1]=0;
+				Lines[Count - 1][1] = 0;
 			}
 			Count++;
-			I=Count;
+			I = Count;
 		}
 
-		Lines[Count-1][1] = fileSize-1 - Lines[Count-1][0];
+		Lines[Count - 1][1] = fileSize - 1 - Lines[Count - 1][0];
 
 		Count = 0;
 	}
@@ -78,17 +83,19 @@ int main(int argc, char** argv)
 
 	while (Editing)
 	{
-		fputs("$ ", stdout);
+		fputs("*", stdout);
 		fgets(UserInput, 128, stdin);
-		Tok = strtok(UserInput, ":");
+		Tok = strtok(UserInput, ";");
 		if (strcmp(Tok, "l") == 0)
 		{
 			fwrite(FileBuffer, sizeof(char), fileSize, stdout);
 		}
 		else if (strcmp(Tok, "q") == 0)
 		{
-			free(FileBuffer);
-			fclose(GivenFile);
+			if (GivenFile != NULL)
+			{
+				fclose(GivenFile);
+			}
 			exit(0);
 		}
 		else if (strcmp(Tok, "a") == 0)
@@ -141,48 +148,50 @@ int main(int argc, char** argv)
 			}
 
 		}
-		else if(strcmp(Tok, "r")==0)
+		else if (strcmp(Tok, "r") == 0)
 		{
 			int LINEchsn;
 			fputs(": ", stdout);
 			scanf("%d", &LINEchsn);
-		
+
 
 			int INDEXchsn, INDEXend;
 
-			if(LINEchsn >= 1 || LINEchsn < I)
+			if (LINEchsn >= 1 || LINEchsn < I)
 			{
-				LINEchsn-=1;
+				LINEchsn -= 1;
 				INDEXchsn = Lines[LINEchsn][0];
-				INDEXend = Lines[LINEchsn+1][0];
+				INDEXend = Lines[LINEchsn + 1][0];
 			}
 			else
 			{
 				printf("Line does not exist!\n");
+				break;
 			}
 
-			char *lineBeginning = FileBuffer + INDEXchsn - 1;
+			char* lineBeginning = FileBuffer + INDEXchsn - 1;
 			//printf("%.*s", Lines[LINEchsn+1][1]-INDEXchsn, lineBeginning);
 
-			int count=0;
+			int count = 0;
+			INDEXend += 1;
 
-			for(int i=INDEXchsn;i<INDEXend;i++)
+			for (int i = INDEXchsn; i < INDEXend; i++)
 			{
-				printf("%c", FileBuffer[i]);
 				count++;
 			}
 
 			int lineLength = count;
-			printf("Line: %.*s, Length: %d\n", lineLength, lineBeginning, lineLength);
-			
+			//printf("Line: %.*s, Length: %d\n", lineLength, lineBeginning, lineLength);
+
 			printf("fileSize: %ld\nlineBeginning - FileBuffer: %ld\nlineLength: %d\n", fileSize, (lineBeginning - FileBuffer), lineLength);
 			printf("%ld\n", fileSize - (lineBeginning + lineLength - FileBuffer));
 
-			memmove(lineBeginning, lineBeginning + lineLength, fileSize - (lineLength + lineBeginning - FileBuffer));
+			memmove(lineBeginning, lineBeginning + lineLength, fileSize - lineLength - INDEXchsn);
+			//			FileBuffer = realloc(FileBuffer, fileSize - lineLength);
 
 		}
 
-		else if(strcmp(Tok, "n")==0)
+		else if (strcmp(Tok, "n") == 0)
 		{
 			for (int i = 0; i < 100; i++)
 			{
@@ -195,9 +204,42 @@ int main(int argc, char** argv)
 			}
 
 		}
+		else if (strcmp(Tok, "o") == 0)
+		{
+			char *FILENAME = "";
+			fputs(": ", stdout);
+			fgets(FILENAME, 36, stdin);
+
+			if (FILENAME != NULL)
+			{
+				GivenFile = fopen(FILENAME, "rb+");
+				if (GivenFile == NULL)
+				{
+					fputs("File does not exist!\n", stdout);
+				}
+				else
+				{
+					GivenFile = fopen(FILENAME, "rb+");
+					fseek(GivenFile, 0, SEEK_END);
+					size_t fileSize = ftell(GivenFile);
+					FileBuffer = malloc(fileSize);
+					rewind(GivenFile);
+					FileBuffer = realloc(FileBuffer, fileSize + ENT);
+					fread(FileBuffer, 1, fileSize, GivenFile);
+				}
+			}
+			// if the given file does not exist. it creates a new file
+			else
+			{
+				fputs("File does not exist!\n", stdout);
+			}
+		}
 	}
 
-	fclose(GivenFile);
+
+
+fclose(GivenFile);
+
 
 	return 0;
 }
