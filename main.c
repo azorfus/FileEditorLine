@@ -23,6 +23,22 @@ size_t fileSize;
 // size of user input string
 size_t ENT = 0;
 
+void OpenFile(char* filename)
+{
+	if (filename != NULL)
+	{
+		GivenFile = fopen(filename , "w+");
+		if (GivenFile == NULL)
+		{
+			GivenFile = fopen("untitled", "w+");
+		}
+	}
+	else
+	{
+		GivenFile = fopen("untitiled", "w+");
+	}
+}
+
 void Read_BUFF()
 {
 	fseek(GivenFile, 0, SEEK_END);
@@ -30,25 +46,24 @@ void Read_BUFF()
 	FileBuffer = malloc(fileSize);
 	rewind(GivenFile);
 	FileBuffer = realloc(FileBuffer, fileSize + ENT);
+	/*
+	if (FileBuffer == NULL)
+	{
+		fputs("File Buffer load failed [Exiting]\n", stdout);
+		exit(0);
+	}
+	*/
 	fread(FileBuffer, 1, fileSize, GivenFile);
 }
 
 int main(int argc, char** argv)
 {
 	char* FileARG = argv[1];
-	if (FileARG != NULL)
-	{
-		GivenFile = fopen(FileARG, "w+");
-		if (GivenFile == NULL)
-		{
-			GivenFile = fopen("untitled", "w+");
-		}
-	}
+
+	OpenFile(FileARG);
+
 	// if the given file does not exist. it creates a new file
-	else
-	{
-		GivenFile = fopen("untitiled", "w+");
-	}
+
 
 	// reading the contents of the file onto FileBuffer
 
@@ -106,8 +121,8 @@ int main(int argc, char** argv)
 		}
 		else if (strcmp(Tok, "a") == 0)
 		{
-			char* temp = "";
-			size_t tempsize = strlen(temp);
+			char* temp;
+			size_t tempsize;
 			while (inputRun)
 			{
 				fputs(": ", stdout);
@@ -116,6 +131,7 @@ int main(int argc, char** argv)
 				inputSec[559] = '\0'; // In case fgets reads 559 bytes without a nul
 				if (strncmp(inputSec, ":END:", 5) == 0)
 				{
+					realloc(FileBuffer, fileSize + tempsize);
 					memcpy(FileBuffer + fileSize, temp, ENT);
 					fileSize += tempsize;
 					inputRun = false;
@@ -127,7 +143,8 @@ int main(int argc, char** argv)
 				}
 				else {
 					ENT = strlen(inputSec);
-					FileBuffer = realloc(FileBuffer, fileSize + ENT);
+					tempsize = strlen(temp);
+					temp = realloc(temp, tempsize + ENT);
 					// copying the user input into the FileBuffer
 					memcpy(temp + tempsize, inputSec, ENT);
 					tempsize += ENT;
