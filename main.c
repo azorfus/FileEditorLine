@@ -13,20 +13,20 @@
 #define MAX_BUFFER 1260
 
 FILE* GivenFile;
-char* FileARG = argv[1];
 int LineNumber = 1;
 bool Editing = true;
 char UserInput[128];
 char* Tok;
 int Lines[100][2];
 char* FileBuffer;
+size_t fileSize;
 // size of user input string
 size_t ENT = 0;
 
 void Read_BUFF()
 {
 	fseek(GivenFile, 0, SEEK_END);
-	size_t fileSize = ftell(GivenFile);
+	fileSize = ftell(GivenFile);
 	FileBuffer = malloc(fileSize);
 	rewind(GivenFile);
 	FileBuffer = realloc(FileBuffer, fileSize + ENT);
@@ -35,6 +35,7 @@ void Read_BUFF()
 
 int main(int argc, char** argv)
 {
+	char* FileARG = argv[1];
 	if (FileARG != NULL)
 	{
 		GivenFile = fopen(FileARG, "w+");
