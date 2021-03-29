@@ -17,7 +17,6 @@ int main(int argc, char** argv)
 	FILE* GivenFile;
 	char* FileARG = argv[1];
 	int LineNumber = 1;
-	int Count = 0;
 	bool Editing = true;
 	char UserInput[128];
 	char* Tok;
@@ -52,38 +51,27 @@ int main(int argc, char** argv)
 	if (FileBuffer != NULL)
 	{
 		// storing newline character's index with the line number for later inserts
+		int Count = 1;
+		int prev;
+		Lines[0][0] = 1;
+		Lines[0][1] = 0;
 		for (int i = 0; i < fileSize; i++)
 		{
-			if (FileBuffer[i] == '\n' || FileBuffer[i] == '\0')
-			{
-				printf("Found at index[%d] line number[%d] char is [%c]\n", i+1, Count, FileBuffer[i]);
-				Lines[Count][0] = Count+1;
-				Lines[Count][1] = i+1;
-				Count++;
-				I = Count;
-			}
-			else if (FileBuffer[i+1] == '\n' || FileBuffer[i+1] == '\0')
-			{
-				printf("Found at index[%d] line number[%d] char is [%c]\n", i+1, Count, FileBuffer[i]);
-				Lines[Count][0] = Count+2;
-				Lines[Count][1] = i+2;
-				Count++;
-				I = Count;
-			}
-		}
-		Lines[100][1] = 010;
+		    	if (FileBuffer[i] != '\n' && FileBuffer[i] != '\0') continue; // ignore this iteration
 
+			Lines[Count][0] = i+1;
+			Lines[Count-1][1] = i - Lines[Count-1][0];
+			if(Lines[Count-1][1] == -1)
+			{
+				Lines[Count-1][1]=0;
+			}
+			Count++;
+			I=Count;
+		}
+
+		Lines[Count-1][1] = fileSize-1 - Lines[Count-1][0];
 
 		Count = 0;
-		for (int i = 0; i < 100; i++)
-		{
-			if (i == I)
-			{
-				break;
-			}
-
-			printf("%d, %d\n", Lines[i][0], Lines[i][1]);
-		}
 	}
 
 
@@ -158,25 +146,54 @@ int main(int argc, char** argv)
 			int LINEchsn;
 			fputs(": ", stdout);
 			scanf("%d", &LINEchsn);
-			
-			int INDEXchsn;
+		
+
+			int INDEXchsn, INDEXend;
 
 			if(LINEchsn >= 1 || LINEchsn < I)
 			{
-				INDEXchsn = Lines[LINEchsn][1];
+				LINEchsn-=1;
+				INDEXchsn = Lines[LINEchsn][0];
+				INDEXend = Lines[LINEchsn+1][0];
 			}
 			else
 			{
 				printf("Line does not exist!\n");
 			}
 
-			char *lineBeginning = FileBuffer + INDEXchsn + 1;
-			printf("%.*s", Lines[LINEchsn+1][1]-INDEXchsn, lineBeginning);
-			int lineLength = strlen(lineBeginning);
+			char *lineBeginning = FileBuffer + INDEXchsn - 1;
+			//printf("%.*s", Lines[LINEchsn+1][1]-INDEXchsn, lineBeginning);
+
+			int count=0;
+
+			for(int i=INDEXchsn;i<INDEXend;i++)
+			{
+				printf("%c", FileBuffer[i]);
+				count++;
+			}
+
+			int lineLength = count;
+			printf("Line: %.*s, Length: %d\n", lineLength, lineBeginning, lineLength);
 			
 			printf("fileSize: %ld\nlineBeginning - FileBuffer: %ld\nlineLength: %d\n", fileSize, (lineBeginning - FileBuffer), lineLength);
+			printf("%ld\n", fileSize - (lineBeginning + lineLength - FileBuffer));
 
-			memmove(lineBeginning, lineBeginning + lineLength, fileSize - (lineBeginning + lineLength - FileBuffer));
+			memmove(lineBeginning, lineBeginning + lineLength, fileSize - (lineLength + lineBeginning - FileBuffer));
+
+		}
+
+		else if(strcmp(Tok, "n")==0)
+		{
+			for (int i = 0; i < 100; i++)
+			{
+				if (i == I)
+				{
+					break;
+				}
+
+				printf("%d - %d, %d\n", i, Lines[i][0], Lines[i][1]);
+			}
+
 		}
 	}
 
