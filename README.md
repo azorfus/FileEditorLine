@@ -11,6 +11,6 @@ l: - lists the file's contents
 
 q: - quits
 
-i: insert mode (append)
+a: append mode
 
 w: write to file
